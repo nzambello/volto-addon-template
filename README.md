@@ -1,4 +1,4 @@
-# <volto-addon-template>
+# <volto-addon-name>
 
 A widget for [Volto](https://github.com/plone/volto) to insert values for any language enabled
 
@@ -17,7 +17,7 @@ and insert `<volto-addon-name>` as addon name and `<volto-addon-url>` as addon U
 In your Volto project:
 
 ```bash
-yarn add mrs-developer collective/<volto-addon-name>
+yarn add mrs-developer <volto-addon-path>
 ```
 
 and in `package.json`:

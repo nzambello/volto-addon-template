@@ -1,10 +1,10 @@
 {
   "name": "<volto-addon-name>",
   "version": "0.1.0",
-  "description": "<volto-addon-descriptiion>",
+  "description": "<volto-addon-description>",
   "main": "src/index.js",
-  "repository": "https://github.com/<volto-addon-reponame>",
-  "author": "",
+  "repository": "<volto-addon-httpurl>",
+  "author": "<volto-addon-author>",
   "license": "MIT",
   "devDependencies": {
     "eslint": "^6.8.0",
