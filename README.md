@@ -74,29 +74,6 @@ Fix tests, in `package.json`:
     ...
 ```
 
-Edit `.eslintrc`:
-
-```json
-{
-  "extends": "./node_modules/@plone/volto/.eslintrc",
-  "settings": {
-    "import/resolver": {
-      "alias": {
-        "map": [
-          ["@plone/volto", "@plone/volto/src"],
-          ["@package", "./src"],
-          ["<volto-addon-name>", "./src/addons/<volto-addon-name>/src"]
-        ],
-        "extensions": [".js", ".jsx", ".json"]
-      },
-      "babel-plugin-root-import": {
-        "rootPathSuffix": "src"
-      }
-    }
-  }
-}
-```
-
 Add `src/addons` in `.gitignore`:
 
 ```
