@@ -1,6 +1,6 @@
 # <volto-addon-name>
 
-A widget for [Volto](https://github.com/plone/volto) to insert values for any language enabled
+An addon for [Volto](https://github.com/plone/volto) to ...
 
 To be used with mrs-developer, see [Volto docs](https://docs.voltocms.com/customizing/add-ons/) for further usage informations.
 
