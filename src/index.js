@@ -1,1 +1,3 @@
-export default config => config
+export default function applyConfig(config) {
+  return config
+}

@@ -6,10 +6,17 @@
   "repository": "<volto-addon-httpurl>",
   "author": "<volto-addon-author>",
   "license": "MIT",
+  "keywords": [
+    "volto-addon",
+    "volto",
+    "plone",
+    "react"
+  ],
   "devDependencies": {
     "release-it": "*"
   },
   "scripts": {
+    "i18n": "NODE_ENV=production node src/i18n.js",
     "release": "release-it"
   }
 }
