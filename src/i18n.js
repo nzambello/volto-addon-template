@@ -4,23 +4,11 @@
  * @module scripts/i18n
  */
 
-const { find, keys, map, concat, reduce, zipObject } = require('lodash');
+const { find, keys, map, concat, reduce } = require('lodash');
 const glob = require('glob').sync;
 const fs = require('fs');
 const Pofile = require('pofile');
 const babel = require('@babel/core');
-
-const path = require('path');
-const projectRootPath = path.resolve('.');
-let italiaThemePath = path.resolve('./node_modules/design-volto-theme');
-const packageJson = require(path.join(projectRootPath, 'package.json'));
-const italiaPackageJson = require(path.join(italiaThemePath, 'package.json'));
-const AddonConfigurationRegistry = require('@plone/volto/addon-registry');
-const ItaliaAddonConfigurationRegistry = require('../italia-addon-registry');
-const registry = new AddonConfigurationRegistry(projectRootPath);
-const italiaAddonsRegistry = new ItaliaAddonConfigurationRegistry(
-  italiaThemePath,
-);
 
 /**
  * Extract messages into separate JSON files
@@ -50,13 +38,8 @@ function getMessages() {
         // We ignore the existing customized shadowed components ones, since most
         // probably we won't be overriding them
         // If so, we should do it in the config object or somewhere else
-        // We also ignore the addons folder since they are populated using
-        // their own locales files and taken care separatedly in this script
         glob('build/messages/src/**/*.json', {
-          ignore: [
-            'build/messages/src/customizations/**',
-            'build/messages/src/addons/**',
-          ],
+          ignore: 'build/messages/src/customizations/**',
         }),
         (filename) =>
           map(JSON.parse(fs.readFileSync(filename, 'utf8')), (message) => ({
@@ -113,83 +96,21 @@ function messagesToPot(messages) {
  */
 function potHeader() {
   return `msgid ""
-msgstr ""
-"Project-Id-Version: Plone\\n"
-"POT-Creation-Date: ${new Date().toISOString()}\\n"
-"Last-Translator: Plone i18n <plone-i18n@lists.sourceforge.net>\\n"
-"Language-Team: Plone i18n <plone-i18n@lists.sourceforge.net>\\n"
-"MIME-Version: 1.0\\n"
-"Content-Type: text/plain; charset=utf-8\\n"
-"Content-Transfer-Encoding: 8bit\\n"
-"Plural-Forms: nplurals=1; plural=0;\\n"
-"Language-Code: en\\n"
-"Language-Name: English\\n"
-"Preferred-Encodings: utf-8\\n"
-"Domain: volto\\n"
+ msgstr ""
+ "Project-Id-Version: Plone\\n"
+ "POT-Creation-Date: ${new Date().toISOString()}\\n"
+ "Last-Translator: Plone i18n <plone-i18n@lists.sourceforge.net>\\n"
+ "Language-Team: Plone i18n <plone-i18n@lists.sourceforge.net>\\n"
+ "MIME-Version: 1.0\\n"
+ "Content-Type: text/plain; charset=utf-8\\n"
+ "Content-Transfer-Encoding: 8bit\\n"
+ "Plural-Forms: nplurals=1; plural=0;\\n"
+ "Language-Code: en\\n"
+ "Language-Name: English\\n"
+ "Preferred-Encodings: utf-8\\n"
+ "Domain: volto\\n"
 
 `;
-}
-
-/**
- * Convert po files into json
- * @function poToJson
- * @return {undefined}
- */
-function poToJson() {
-  map(glob('locales/**/*.po'), (filename) => {
-    let { items } = Pofile.parse(fs.readFileSync(filename, 'utf8'));
-    const lang = filename.match(/locales\/(.*)\/LC_MESSAGES\//)[1];
-
-    // Merge addons locales
-    if (packageJson.addons) {
-      registry.addonNames.forEach((addon) => {
-        const addonlocale = `${registry.packages[addon].modulePath}/../${filename}`;
-        if (fs.existsSync(addonlocale)) {
-          const addonItems = Pofile.parse(fs.readFileSync(addonlocale, 'utf8'))
-            .items;
-          items = [...addonItems, ...items];
-          console.log(`Merging ${addon} locales for ${lang}`);
-        }
-      });
-    }
-
-    if (italiaPackageJson.addons) {
-      italiaAddonsRegistry.addonNames.forEach((addon) => {
-        const addonlocale = `${italiaAddonsRegistry.packages[addon].modulePath}/../${filename}`;
-        if (fs.existsSync(addonlocale)) {
-          const addonItems = Pofile.parse(fs.readFileSync(addonlocale, 'utf8'))
-            .items;
-          items = [...addonItems, ...items];
-          console.log(`Merging ${addon} locales for ${lang}`);
-        }
-      });
-    }
-
-    // Merge project locales, the project customization wins
-    const lib = `node_modules/@plone/volto/${filename}`;
-    if (fs.existsSync(lib)) {
-      const libItems = Pofile.parse(fs.readFileSync(lib, 'utf8')).items;
-      items = [...libItems, ...items];
-    }
-
-    const italialib = `node_modules/design-volto-theme/${filename}`;
-    if (fs.existsSync(italialib)) {
-      const italialibItems = Pofile.parse(fs.readFileSync(italialib, 'utf8'))
-        .items;
-      items = [...italialibItems, ...items];
-    }
-
-    // Write it
-    fs.writeFileSync(
-      `locales/${lang}.json`,
-      JSON.stringify(
-        zipObject(
-          map(items, (item) => item.msgid),
-          map(items, (item) => item.msgstr[0]),
-        ),
-      ),
-    );
-  });
 }
 
 /**
@@ -223,17 +144,19 @@ function syncPoByPot() {
     fs.writeFileSync(
       filename,
       `${formatHeader(po.comments, po.headers)}
-${map(pot.items, (item) => {
-  const poItem = find(po.items, { msgid: item.msgid });
-  return [
-    `${map(item.references, (ref) => `#: ${ref}`).join('\n')}`,
-    `msgid "${item.msgid}"`,
-    `msgstr "${poItem ? poItem.msgstr : ''}"`,
-  ].join('\n');
-}).join('\n\n')}\n`,
+ ${map(pot.items, (item) => {
+   const poItem = find(po.items, { msgid: item.msgid });
+   return [
+     `${map(item.references, (ref) => `#: ${ref}`).join('\n')}`,
+     `msgid "${item.msgid}"`,
+     `msgstr "${poItem ? poItem.msgstr : ''}"`,
+   ].join('\n');
+ }).join('\n\n')}\n`,
     );
   });
 }
+
+// Main tasks
 console.log('Extracting messages from source files...');
 extractMessages();
 console.log('Synchronizing messages to pot file...');
@@ -254,6 +177,4 @@ if (newPot !== oldPot) {
 }
 console.log('Synchronizing messages to po files...');
 syncPoByPot();
-console.log('Generating the json files...');
-poToJson();
 console.log('done!');
