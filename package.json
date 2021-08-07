@@ -4,6 +4,8 @@
   "description": "<volto-addon-description>",
   "main": "src/index.js",
   "repository": "<volto-addon-httpurl>",
+  "homepage": "<volto-addon-httpurl>#readme",
+  "bugs": "<volto-addon-httpurl>/issues",
   "author": "<volto-addon-author>",
   "license": "MIT",
   "keywords": [
